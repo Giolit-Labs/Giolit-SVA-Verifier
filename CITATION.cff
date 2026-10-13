@@ -1,0 +1,22 @@
+cff-version: 1.2.0
+title: Giolit SystemVerilog Assertion Verifier
+version: 1.0.0
+date-released: 2026-10-13
+abstract: Formal proof that SystemVerilog assertions hold for all inputs
+  and every start state — or the exact clock cycle that breaks them. Verifier,
+  C++ SDK, benchmarks and result evidence. Signed proof certificates and
+  safety margins with the Giolit Safety Resilience Score.
+authors:
+  - name: Giolit Labs
+    address: Ramavarmapuram P.O., Thrissur, Kerala, India
+    website: https://www.giolit.com
+    email: business.giolitlabs@gmail.com
+repository-code: https://github.com/Giolit-Labs/Giolit-SVA-Verifier
+license: SEE LICENSE.md
+keywords:
+  - hardware-verification
+  - formal-methods
+  - systemverilog
+  - SVA
+  - model-checking
+  - proof-certificates

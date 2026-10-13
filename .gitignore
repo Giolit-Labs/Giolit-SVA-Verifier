@@ -1,0 +1,45 @@
+# The distributable bundle IS hosted in this repo (see CHECKSUMS.txt).
+# Do not ignore giolit-sva-verifier-*.tar.gz.
+
+# Verifier report / proof output produced locally
+out/
+*_report/
+cert/
+certificate.pdf
+counterexample-report.pdf
+verification-report.pdf
+results.sarif
+results.json
+proof.json
+certificate.json
+verifier-output.txt
+*.vcd
+*.log
+*.aux
+*.synctex.gz
+
+# SDK build products
+verify_design
+counterexamples
+proofs
+margins
+certify
+regression
+low_level
+license_info
+*.o
+*.a
+
+# Local installs and licence state (never commit)
+.giolit/
+~/.giolit/
+giolit-out/
+sva-tutorial/
+
+# Editors / OS
+.DS_Store
+Thumbs.db
+*~
+*.swp
+.vscode/
+.idea/

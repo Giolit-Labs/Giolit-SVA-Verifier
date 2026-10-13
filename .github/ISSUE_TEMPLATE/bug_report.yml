@@ -1,0 +1,55 @@
+name: Bug report
+description: Report a wrong or unexpected verification result
+title: "[bug] "
+labels: [bug]
+body:
+  - type: input
+    id: version
+    attributes:
+      label: Verifier version
+      description: Output of `sva-verify --version`
+      placeholder: sva-verify 1.0.0 (trial version)
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: Operating system
+      description: e.g. Ubuntu 24.04 x86-64, library versions if relevant
+      placeholder: Ubuntu 24.04
+    validations:
+      required: true
+  - type: textarea
+    id: command
+    attributes:
+      label: Exact command
+      description: The full sva-verify command and the folder it runs in
+      placeholder: |
+        cd ~/sva-tutorial
+        sva-verify --reset=rst fifo.sv
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected vs actual
+      description: What you expected (PROVED/FAILED) and what you got, with console output
+      placeholder: Expected FAILED, got ALL ASSERTIONS PROVED ...
+    validations:
+      required: true
+  - type: textarea
+    id: reproducer
+    attributes:
+      label: Minimal reproducer
+      description: Paste the smallest SystemVerilog design that shows the problem, or attach files + result bundle (--report=DIR)
+      render: verilog
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Pre-submit checks
+      options:
+        - label: I ran `sha256sum -c CHECKSUMS.txt` and the bundle is intact
+        - label: I read the Tutorial troubleshooting section (§11) and README.md
+        - label: I am not sharing licence passwords or private host data

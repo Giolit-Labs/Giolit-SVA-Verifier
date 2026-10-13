@@ -1,0 +1,84 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Verify bundle checksum
+        run: sha256sum -c CHECKSUMS.txt
+
+      - name: Extract bundle
+        run: tar xzf giolit-sva-verifier-1.0.0-trial.tar.gz
+
+      - name: Check bundle integrity
+        run: |
+          cd giolit-sva-verifier-1.0.0-trial
+          sha256sum -c SHA256SUMS
+
+      - name: Check docs mirror is in sync
+        run: |
+          for f in Tutorial.pdf Product-Poster.pdf Brochure.pdf README.md README.pdf TUTORIAL.md Tool-Comparison.md Tool-Comparison.pdf License-Terms.md License-Terms.pdf THIRD-PARTY-NOTICES.md; do
+            cmp -s "docs/$f" "giolit-sva-verifier-1.0.0-trial/documents/$f" || { echo "docs/$f differs from bundle documents/$f"; exit 1; }
+          done
+          cmp -s docs/logo.png giolit-sva-verifier-1.0.0-trial/code/share/giolit/logo.png || { echo "docs/logo.png differs from bundle code/share/giolit/logo.png"; exit 1; }
+          echo "docs/ matches bundle"
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libllvm18 libclang-cpp18 libclang-common-18-dev libc6-dev libssl3 g++
+
+      - name: Install verifier (user prefix)
+        run: |
+          ./giolit-sva-verifier-1.0.0-trial/code/install.sh
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Version and licence (uses no run)
+        run: |
+          sva-verify --version
+          sva-verify --license || true
+
+      - name: Self-test examples
+        run: |
+          cp -r ~/.local/giolit-sva-verify/share/giolit/examples /tmp/sva-tutorial
+          cd /tmp/sva-tutorial
+          sva-verify --timeout=60 --reset=rst 01_counter.sv
+          echo "--- expecting violation (exit 1) ---"
+          set +e
+          sva-verify --timeout=60 --reset=rst 02_counter_bug.sv
+          rc=$?
+          set -e
+          test "$rc" -eq 1
+
+      - name: JSON smoke test
+        run: |
+          cd /tmp/sva-tutorial
+          sva-verify --timeout=60 --reset=rst --json=/tmp/results.json 01_counter.sv
+          test -f /tmp/results.json
+
+      - name: Build SDK examples
+        run: |
+          cd ~/.local/giolit-sva-verify/share/giolit/sdk-examples
+          ./build.sh
+          ./verify_design --reset='!rst_n' designs/fifo/fifo.sv designs/fifo/fifo_sva.sv
+          echo "--- expecting violation (exit 1) ---"
+          set +e
+          ./verify_design --reset='!rst_n' -D FIFO_BUG designs/fifo/fifo.sv designs/fifo/fifo_sva.sv
+          rc=$?
+          set -e
+          test "$rc" -eq 1
+          ./license_info
+
+      - name: Upload JSON (example)
+        uses: actions/upload-artifact@v7
+        with:
+          name: json-example
+          path: /tmp/results.json
